@@ -28,6 +28,7 @@ class CJKMetrics(ReporterPlugin):
 		self.menuName = Glyphs.localize({
 			'en': u'CJK Metrics',
 			'zh': u'汉字度量',
+			'ja': u'CJK メトリクス',
 		})
 
 		self.medialAxesState = True
@@ -46,10 +47,12 @@ class CJKMetrics(ReporterPlugin):
 			Glyphs.localize({
 				'en': (30, 4, 50, 16),
 				'zh': (30, 4, 30, 16),
+				'ja': (30, 4, 50, 16),
 			}),
 			text=Glyphs.localize({
 				'en': u'Spacing',
 				'zh': u'间距',
+				'ja': u'間隔',
 			}),
 			sizeStyle='small',
 		)
@@ -57,6 +60,7 @@ class CJKMetrics(ReporterPlugin):
 			Glyphs.localize({
 				'en': (85, 2, 60, 16),
 				'zh': (65, 2, 60, 16),
+				'ja': (85, 2, 60, 16),
 			}),
 			sizeStyle='small',
 			placeholder='500',
@@ -66,10 +70,12 @@ class CJKMetrics(ReporterPlugin):
 			Glyphs.localize({
 				'en': (30, 24, 50, 16),
 				'zh': (30, 24, 30, 16),
+				'ja': (30, 24, 50, 16),
 			}),
 			text=Glyphs.localize({
 				'en': u'Width',
 				'zh': u'宽度',
+				'ja': u'幅',
 			}),
 			sizeStyle='small',
 		)
@@ -77,6 +83,7 @@ class CJKMetrics(ReporterPlugin):
 			Glyphs.localize({
 				'en': (85, 22, 60, 16),
 				'zh': (65, 22, 60, 16),
+				'ja': (85, 22, 60, 16),
 			}),
 			sizeStyle='small',
 			placeholder='100',
@@ -86,10 +93,12 @@ class CJKMetrics(ReporterPlugin):
 			Glyphs.localize({
 				'en': (30, 44, 50, 16),
 				'zh': (30, 44, 30, 16),
+				'ja': (30, 44, 50, 16),
 			}),
 			text=Glyphs.localize({
 				'en': u'Position',
 				'zh': u'位置',
+				'ja': u'位置',
 			}),
 			sizeStyle='small',
 		)
@@ -97,6 +106,7 @@ class CJKMetrics(ReporterPlugin):
 			Glyphs.localize({
 				'en': (85, 42, 60, 16),
 				'zh': (65, 42, 60, 16),
+				'ja': (85, 42, 60, 16),
 			}),
 			sizeStyle='small',
 			callback=self.sliderCentralAreaPositionCallback,
@@ -105,6 +115,7 @@ class CJKMetrics(ReporterPlugin):
 			Glyphs.localize({
 				'en': (150, 44, 50, 16),
 				'zh': (130, 44, 50, 16),
+				'ja': (150, 44, 50, 16),
 			}),
 			text='{}%'.format(self.centralAreaPosition),
 			sizeStyle='small',
@@ -132,6 +143,7 @@ class CJKMetrics(ReporterPlugin):
 				'name': Glyphs.localize({
 					'en': u'CJK Metrics Options:',
 					'zh': u'汉字度量选项：',
+					'ja': u'CJK メトリクス オプション：',
 				}),
 				'action': None,
 			},
@@ -139,6 +151,7 @@ class CJKMetrics(ReporterPlugin):
 				'name': Glyphs.localize({
 					'en': u'Show Medial Axes',
 					'zh': u'显示水平垂直轴线',
+					'ja': u'中間軸を表示',
 				}),
 				'action': self.toggleMedialAxes,
 				'state': self.medialAxesState,
@@ -147,6 +160,7 @@ class CJKMetrics(ReporterPlugin):
 				'name': Glyphs.localize({
 					'en': u'Show Central Area',
 					'zh': u'显示第二中心区域',
+					'ja': u'中央エリアを表示',
 				}),
 				'action': self.toggleCentralArea,
 				'state': self.centralAreaState,
@@ -155,6 +169,7 @@ class CJKMetrics(ReporterPlugin):
 				'name': Glyphs.localize({
 					'en': u'Rotate Central Area',
 					'zh': u'旋转第二中心区域',
+					'ja': u'中央エリアを回転',
 				}),
 				'action': self.rotateCentralArea,
 				'state': self.centralAreaRotateState,
@@ -166,6 +181,7 @@ class CJKMetrics(ReporterPlugin):
 				'name': Glyphs.localize({
 					'en': u'Show CJK Guide',
 					'zh': u'显示汉字参考线',
+					'ja': u'CJK ガイドを表示',
 				}),
 				'action': self.toggleCjkGuide,
 				'state': self.cjkGuideState,
@@ -174,6 +190,7 @@ class CJKMetrics(ReporterPlugin):
 				'name': Glyphs.localize({
 					'en': u'Scale CJK Guide',
 					'zh': u'缩放汉字参考线',
+					'ja': u'CJK ガイドをスケール',
 				}),
 				'action': self.toggleCjkGuideScaling,
 				'state': self.cjkGuideScalingState,
