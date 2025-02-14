@@ -37,6 +37,8 @@ class CJKMetrics(ReporterPlugin):
 		self.cjkGuideState = True
 		self.cjkGuideScalingState = False
 		self.centralAreaDivisionState = 2  # New state for division (2 or 3)
+		self.tripartiteDivisionState = False  # New state for tripartite division lines
+		self.tripartiteDivisionBasis = 100.0  # Default to 100% of the virtual body
 
 		self.centralAreaSpacing = 100.0  # Default to 100%
 		self.centralAreaWidth = 100.0
@@ -132,6 +134,32 @@ class CJKMetrics(ReporterPlugin):
 			sizeStyle='small',
 		)
 
+		self.windowTripartiteDivision = Window((200, 30))
+		self.windowTripartiteDivision.group = Group((0, 0, 200, 30))
+		self.windowTripartiteDivision.group.textBoxBasis = TextBox(
+			Glyphs.localize({
+				'en': (30, 4, 50, 16),
+				'zh': (30, 4, 30, 16),
+				'ja': (30, 4, 50, 16),
+			}),
+			text=Glyphs.localize({
+				'en': u'Basis Size',
+				'zh': u'基准字面大小',
+				'ja': u'基準字面サイズ',
+			}),
+			sizeStyle='small',
+		)
+		self.windowTripartiteDivision.group.editTextBasis = EditText(
+			Glyphs.localize({
+				'en': (85, 2, 60, 16),
+				'zh': (65, 2, 60, 16),
+				'ja': (85, 2, 60, 16),
+			}),
+			sizeStyle='small',
+			placeholder='100',
+			callback=self.editTextTripartiteDivisionBasisCallback,
+		)
+
 		self.generalContextMenus = self.buildContextMenus()
 
 	@objc.python_method
@@ -146,6 +174,10 @@ class CJKMetrics(ReporterPlugin):
 	def editTextCentralAreaPositionCallback(self, sender):
 		self.centralAreaPosition = toFloat(sender.get())
 		self.windowCentralArea.group.textBoxPositionValue.set('{:.1f}%'.format(self.centralAreaPosition))
+
+	@objc.python_method
+	def editTextTripartiteDivisionBasisCallback(self, sender):
+		self.tripartiteDivisionBasis = toFloat(sender.get())
 
 	@objc.python_method
 	def buildContextMenus(self):
@@ -166,6 +198,18 @@ class CJKMetrics(ReporterPlugin):
 				}),
 				'action': self.toggleMedialAxes,
 				'state': self.medialAxesState,
+			},
+			{
+				'name': Glyphs.localize({
+					'en': u'Show Tripartite Division Lines',
+					'zh': u'显示三等分线',
+					'ja': u'三等分線を表示',
+				}),
+				'action': self.toggleTripartiteDivision,
+				'state': self.tripartiteDivisionState,
+			},
+			{
+				'view': self.windowTripartiteDivision.group.getNSView(),
 			},
 			{
 				'name': Glyphs.localize({
@@ -257,6 +301,10 @@ class CJKMetrics(ReporterPlugin):
 		self.centralAreaDivisionState = 3 if self.centralAreaDivisionState == 2 else 2
 		self.generalContextMenus = self.buildContextMenus()
 
+	def toggleTripartiteDivision(self):
+		self.tripartiteDivisionState = not self.tripartiteDivisionState
+		self.generalContextMenus = self.buildContextMenus()
+
 	@objc.python_method
 	def foreground(self, layer):
 		if self.medialAxesState:
@@ -265,6 +313,8 @@ class CJKMetrics(ReporterPlugin):
 			self.drawCentralArea(layer)
 		if self.cjkGuideState:
 			self.drawCjkGuide(layer)
+		if self.tripartiteDivisionState:
+			self.drawTripartiteDivisionLines(layer)
 
 	@objc.python_method
 	def drawMedialAxes(self, layer):
@@ -418,6 +468,56 @@ class CJKMetrics(ReporterPlugin):
 		cjkGuideGlyph.export = False
 		cjkGuideGlyph.storeScript = True
 		cjkGuideGlyph.script = 'han'
+
+	@objc.python_method
+	def drawTripartiteDivisionLines(self, layer):
+		'''Draw the tripartite division lines (三等分线).'''
+		scale = self.getScale()
+
+		view = Glyphs.font.currentTab.graphicView()
+		visibleRect = view.visibleRect()
+		activePosition = view.activePosition()
+
+		viewOriginX = (visibleRect.origin.x - activePosition.x) / scale
+		viewOriginY = (visibleRect.origin.y - activePosition.y) / scale
+		viewWidth = visibleRect.size.width / scale
+		viewHeight = visibleRect.size.height / scale
+
+		height = layer.ascender - layer.descender
+		width  = layer.width
+
+		# Calculate positions for tripartite division based on the basis percentage
+		basis_width = width * self.tripartiteDivisionBasis / 100
+		basis_height = height * self.tripartiteDivisionBasis / 100
+
+		third_width = basis_width / 3
+		third_height = basis_height / 3
+
+		# Calculate the center of the glyph
+		center_x = width / 2
+		center_y = (layer.ascender + layer.descender) / 2
+
+		# TODO: color
+		color = NSColor.systemBlueColor()
+		color.set()
+
+		path = NSBezierPath.bezierPath()
+		path.setLineDash_count_phase_([5.0, 2.0], 2, 0.0)  # Set dashed line
+
+		# Vertical lines
+		for i in range(1, 3):
+			x = center_x - basis_width / 2 + i * third_width
+			path.moveToPoint_((x, viewOriginY))
+			path.lineToPoint_((x, viewOriginY + viewHeight))
+
+		# Horizontal lines
+		for i in range(1, 3):
+			y = center_y - basis_height / 2 + i * third_height
+			path.moveToPoint_((viewOriginX, y))
+			path.lineToPoint_((viewOriginX + viewWidth, y))
+
+		path.setLineWidth_(1 / scale)
+		path.stroke()
 
 	@objc.python_method
 	def __file__(self):
