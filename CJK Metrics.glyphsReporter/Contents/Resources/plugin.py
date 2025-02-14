@@ -38,7 +38,7 @@ class CJKMetrics(ReporterPlugin):
 		self.cjkGuideScalingState = False
 		self.centralAreaDivisionState = 2  # New state for division (2 or 3)
 
-		self.centralAreaSpacing = 500.0
+		self.centralAreaSpacing = 100.0  # Default to 100%
 		self.centralAreaWidth = 100.0
 		self.centralAreaPosition = 50.0
 
@@ -64,8 +64,17 @@ class CJKMetrics(ReporterPlugin):
 				'ja': (85, 2, 60, 16),
 			}),
 			sizeStyle='small',
-			placeholder='500',
+			placeholder='100',
 			callback=self.editTextCentralAreaSpacingCallback,
+		)
+		self.windowCentralArea.group.textBoxSpacingValue = TextBox(
+			Glyphs.localize({
+				'en': (150, 4, 50, 16),
+				'zh': (130, 4, 50, 16),
+				'ja': (150, 4, 50, 16),
+			}),
+			text='{}%'.format(self.centralAreaSpacing),
+			sizeStyle='small',
 		)
 		self.windowCentralArea.group.textBoxWidth = TextBox(
 			Glyphs.localize({
@@ -296,42 +305,48 @@ class CJKMetrics(ReporterPlugin):
 	@objc.python_method
 	def drawCentralArea(self, layer):
 		'''Draw the central area (第二中心区域).'''
-		spacing = self.centralAreaSpacing
-
 		descender = layer.descender
 		ascender = layer.ascender
 
 		if not self.centralAreaRotateState:
+			# Calculate the actual spacing based on the width
+			division_factor = 3 if self.centralAreaDivisionState == 3 else 2
+			actual_spacing = (layer.width * self.centralAreaSpacing / 100) / division_factor
+
 			width = self.centralAreaWidth
 			height = ascender - descender
 			x_mid = layer.width * self.centralAreaPosition / 100
 
 			if self.centralAreaDivisionState == 3:
 				# Adjust positions for three divisions to center the second area
-				(x0, y0) = (x_mid - spacing - width / 2, descender)
+				(x0, y0) = (x_mid - actual_spacing - width / 2, descender)
 				(x1, y1) = (x_mid - width / 2, descender)
-				(x2, y2) = (x_mid + spacing - width / 2, descender)
+				(x2, y2) = (x_mid + actual_spacing - width / 2, descender)
 				positions = [(x0, y0), (x1, y1), (x2, y2)]
 			else:
 				# Default to two divisions
-				(x0, y0) = (x_mid - spacing / 2 - width / 2, descender)
-				(x1, y1) = (x_mid + spacing / 2 - width / 2, descender)
+				(x0, y0) = (x_mid - actual_spacing / 2 - width / 2, descender)
+				(x1, y1) = (x_mid + actual_spacing / 2 - width / 2, descender)
 				positions = [(x0, y0), (x1, y1)]
 		else:
+			# Calculate the actual spacing based on the height
+			division_factor = 3 if self.centralAreaDivisionState == 3 else 2
+			actual_spacing = ((ascender - descender) * self.centralAreaSpacing / 100) / division_factor
+
 			width = layer.width
 			height = self.centralAreaWidth
 			y_mid = descender + (ascender - descender) * self.centralAreaPosition / 100
 
 			if self.centralAreaDivisionState == 3:
 				# Adjust positions for three divisions to center the second area
-				(x0, y0) = (0, y_mid - spacing - height / 2)
+				(x0, y0) = (0, y_mid - actual_spacing - height / 2)
 				(x1, y1) = (0, y_mid - height / 2)
-				(x2, y2) = (0, y_mid + spacing - height / 2)
+				(x2, y2) = (0, y_mid + actual_spacing - height / 2)
 				positions = [(x0, y0), (x1, y1), (x2, y2)]
 			else:
 				# Default to two divisions
-				(x0, y0) = (0, y_mid - spacing / 2 - height / 2)
-				(x1, y1) = (0, y_mid + spacing / 2 - height / 2)
+				(x0, y0) = (0, y_mid - actual_spacing / 2 - height / 2)
+				(x1, y1) = (0, y_mid + actual_spacing / 2 - height / 2)
 				positions = [(x0, y0), (x1, y1)]
 
 		# TODO: color
