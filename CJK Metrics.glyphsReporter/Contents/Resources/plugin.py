@@ -36,6 +36,7 @@ class CJKMetrics(ReporterPlugin):
 		self.centralAreaRotateState = False
 		self.cjkGuideState = True
 		self.cjkGuideScalingState = False
+		self.centralAreaDivisionState = 2  # New state for division (2 or 3)
 
 		self.centralAreaSpacing = 500.0
 		self.centralAreaWidth = 100.0
@@ -176,6 +177,15 @@ class CJKMetrics(ReporterPlugin):
 				'state': self.centralAreaRotateState,
 			},
 			{
+				'name': Glyphs.localize({
+					'en': u'Divide Central Area into Three',
+					'zh': u'将中心区域分为三部分',
+					'ja': u'中央エリアを3つに分割',
+				}),
+				'action': self.toggleCentralAreaDivision,
+				'state': self.centralAreaDivisionState == 3,
+			},
+			{
 				'view': self.windowCentralArea.group.getNSView(),
 			},
 			{
@@ -232,6 +242,10 @@ class CJKMetrics(ReporterPlugin):
 
 	def toggleCjkGuideScaling(self):
 		self.cjkGuideScalingState = not self.cjkGuideScalingState
+		self.generalContextMenus = self.buildContextMenus()
+
+	def toggleCentralAreaDivision(self):
+		self.centralAreaDivisionState = 3 if self.centralAreaDivisionState == 2 else 2
 		self.generalContextMenus = self.buildContextMenus()
 
 	@objc.python_method
@@ -291,22 +305,41 @@ class CJKMetrics(ReporterPlugin):
 			width = self.centralAreaWidth
 			height = ascender - descender
 			x_mid = layer.width * self.centralAreaPosition / 100
-			(x0, y0) = (x_mid - spacing / 2 - width / 2, descender)
-			(x1, y1) = (x_mid + spacing / 2 - width / 2, descender)
+
+			if self.centralAreaDivisionState == 3:
+				# Adjust positions for three divisions to center the second area
+				(x0, y0) = (x_mid - spacing - width / 2, descender)
+				(x1, y1) = (x_mid - width / 2, descender)
+				(x2, y2) = (x_mid + spacing - width / 2, descender)
+				positions = [(x0, y0), (x1, y1), (x2, y2)]
+			else:
+				# Default to two divisions
+				(x0, y0) = (x_mid - spacing / 2 - width / 2, descender)
+				(x1, y1) = (x_mid + spacing / 2 - width / 2, descender)
+				positions = [(x0, y0), (x1, y1)]
 		else:
 			width = layer.width
 			height = self.centralAreaWidth
 			y_mid = descender + (ascender - descender) * self.centralAreaPosition / 100
-			(x0, y0) = (0, y_mid - spacing / 2 - height / 2)
-			(x1, y1) = (0, y_mid + spacing / 2 - height / 2)
+
+			if self.centralAreaDivisionState == 3:
+				# Adjust positions for three divisions to center the second area
+				(x0, y0) = (0, y_mid - spacing - height / 2)
+				(x1, y1) = (0, y_mid - height / 2)
+				(x2, y2) = (0, y_mid + spacing - height / 2)
+				positions = [(x0, y0), (x1, y1), (x2, y2)]
+			else:
+				# Default to two divisions
+				(x0, y0) = (0, y_mid - spacing / 2 - height / 2)
+				(x1, y1) = (0, y_mid + spacing / 2 - height / 2)
+				positions = [(x0, y0), (x1, y1)]
 
 		# TODO: color
 		color = NSColor.systemGrayColor().colorWithAlphaComponent_(0.2)
 		color.set()
 
-		NSBezierPath.fillRect_(((x0, y0), (width, height)))
-		NSBezierPath.fillRect_(((x1, y1), (width, height)))
-
+		for (x, y) in positions:
+			NSBezierPath.fillRect_(((x, y), (width, height)))
 
 	@objc.python_method
 	def drawCjkGuide(self, layer):
