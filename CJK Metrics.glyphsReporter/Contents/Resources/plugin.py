@@ -102,14 +102,15 @@ class CJKMetrics(ReporterPlugin):
 			}),
 			sizeStyle='small',
 		)
-		self.windowCentralArea.group.sliderPosition = Slider(
+		self.windowCentralArea.group.editTextPosition = EditText(
 			Glyphs.localize({
 				'en': (85, 42, 60, 16),
 				'zh': (65, 42, 60, 16),
 				'ja': (85, 42, 60, 16),
 			}),
 			sizeStyle='small',
-			callback=self.sliderCentralAreaPositionCallback,
+			placeholder='50',
+			callback=self.editTextCentralAreaPositionCallback,
 		)
 		self.windowCentralArea.group.textBoxPositionValue = TextBox(
 			Glyphs.localize({
@@ -132,9 +133,9 @@ class CJKMetrics(ReporterPlugin):
 		self.centralAreaWidth = toFloat(sender.get())
 
 	@objc.python_method
-	def sliderCentralAreaPositionCallback(self, sender):
-		self.centralAreaPosition = sender.get()
-		self.windowCentralArea.group.textBoxPositionValue.set('{:.1f}%'.format(sender.get()))
+	def editTextCentralAreaPositionCallback(self, sender):
+		self.centralAreaPosition = toFloat(sender.get())
+		self.windowCentralArea.group.textBoxPositionValue.set('{:.1f}%'.format(self.centralAreaPosition))
 
 	@objc.python_method
 	def buildContextMenus(self):
@@ -209,7 +210,7 @@ class CJKMetrics(ReporterPlugin):
 			self.windowCentralArea.group.textBoxWidth.enable(True)
 			self.windowCentralArea.group.editTextWidth.enable(True)
 			self.windowCentralArea.group.textBoxPosition.enable(True)
-			self.windowCentralArea.group.sliderPosition.enable(True)
+			self.windowCentralArea.group.editTextPosition.enable(True)
 			self.windowCentralArea.group.textBoxPositionValue.enable(True)
 		else:
 			self.windowCentralArea.group.textBoxSpacing.enable(False)
@@ -217,7 +218,7 @@ class CJKMetrics(ReporterPlugin):
 			self.windowCentralArea.group.textBoxWidth.enable(False)
 			self.windowCentralArea.group.editTextWidth.enable(False)
 			self.windowCentralArea.group.textBoxPosition.enable(False)
-			self.windowCentralArea.group.sliderPosition.enable(False)
+			self.windowCentralArea.group.editTextPosition.enable(False)
 			self.windowCentralArea.group.textBoxPositionValue.enable(False)
 		self.generalContextMenus = self.buildContextMenus()
 
