@@ -162,7 +162,7 @@ class CJKMetrics(ReporterPlugin):
 				'name': Glyphs.localize({
 					'en': u'Show Medial Axes',
 					'zh': u'显示水平垂直轴线',
-					'ja': u'中間軸を表示',
+					'ja': u'中心線を表示',
 				}),
 				'action': self.toggleMedialAxes,
 				'state': self.medialAxesState,
